@@ -16,8 +16,8 @@ const teams = [
     players: 4,
   },
   {
-    name: "Phoenix Free Fire",
-    game: "FREE FIRE",
+    name: "Phoenix Valorant",
+    game: "Valorant",
     organization: "Phoenix Esports",
     players: 4,
   },

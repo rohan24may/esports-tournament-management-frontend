@@ -13,16 +13,16 @@ const tournaments = [
     description:
       "A competitive BGMI tournament featuring registered esports teams.",
   },
-  {
-    id: "2",
-    name: "Free Fire Cup 2026",
-    game: "Free Fire",
-    prize: "₹50,000",
-    dates: "October 25–27, 2026",
-    status: "Upcoming",
-    description:
-      "A competitive Free Fire tournament featuring registered teams.",
-  },
+{
+  id: "2",
+  name: "Valorant Cup 2026",
+  game: "Valorant",
+  prize: "₹50,000",
+  dates: "October 25–27, 2026",
+  status: "Upcoming",
+  description:
+    "A competitive Valorant tournament featuring registered esports teams.",
+},
 ];
 
 export default function TournamentDetails({

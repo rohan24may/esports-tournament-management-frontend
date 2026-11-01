@@ -1,5 +1,8 @@
 
+import Link from "next/link";
+
 type TournamentCardProps = {
+  id: string;
   name: string;
   game: string;
   prize: string;
@@ -8,6 +11,7 @@ type TournamentCardProps = {
 };
 
 export default function TournamentCard({
+  id,
   name,
   game,
   prize,
@@ -15,7 +19,10 @@ export default function TournamentCard({
   status,
 }: TournamentCardProps) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-7 transition hover:border-[var(--accent)]">
+    <Link
+      href={`/tournaments/${id}`}
+      className="block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-7 transition hover:border-[var(--accent)]"
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold tracking-widest text-[var(--accent)]">
           {game}
@@ -40,6 +47,6 @@ export default function TournamentCard({
           {dates}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }

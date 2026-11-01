@@ -4,6 +4,7 @@ import TournamentCard from "@/components/ui/TournamentCard";
 
 const tournaments = [
   {
+    id: "1",
     name: "BGMI Championship 2026",
     game: "BGMI",
     prize: "₹1,00,000",
@@ -11,8 +12,9 @@ const tournaments = [
     status: "UPCOMING",
   },
   {
-    name: "Free Fire Cup 2026",
-    game: "FREE FIRE",
+    id: "2",
+    name: "Valorant Cup 2026",
+    game: "Valorant",
     prize: "₹50,000",
     dates: "25 OCT — 27 OCT 2026",
     status: "UPCOMING",
@@ -49,7 +51,8 @@ export default function TournamentsPage() {
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {tournaments.map((tournament) => (
             <TournamentCard
-              key={tournament.name}
+              key={tournament.id}
+              id={tournament.id}
               name={tournament.name}
               game={tournament.game}
               prize={tournament.prize}
