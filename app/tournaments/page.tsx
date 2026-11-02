@@ -40,13 +40,18 @@ export default function TournamentsPage() {
           and track prize pools across different games.
         </p>
 
-        <div className="mt-12 flex items-center justify-between border-b border-[var(--border)] pb-4">
-          <h2 className="font-bold">ALL TOURNAMENTS</h2>
+<div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 className="font-bold">ALL TOURNAMENTS</h2>
+    <p className="mt-1 text-xs text-[var(--muted)]">
+      DEMO DATA — SAMPLE TOURNAMENTS FOR UI PREVIEW
+    </p>
+  </div>
 
-          <span className="text-sm text-[var(--muted)]">
-            {tournaments.length.toString().padStart(2, "0")} EVENTS
-          </span>
-        </div>
+  <span className="text-sm text-[var(--muted)]">
+    {tournaments.length.toString().padStart(2, "0")} SAMPLE EVENTS
+  </span>
+</div>
 
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {tournaments.map((tournament) => (

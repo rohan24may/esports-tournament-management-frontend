@@ -67,6 +67,13 @@ export default function Home() {
 
 {/* Platform Statistics */}
 <section id="statistics" className="px-6 pb-20 md:px-12">
+  <div className="mb-5 flex items-center justify-between">
+    <h2 className="font-bold">PLATFORM OVERVIEW</h2>
+    <span className="text-xs text-[var(--muted)]">
+      DEMO DATA
+    </span>
+  </div>
+
   <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
     {stats.map((stat) => (
       <StatCard

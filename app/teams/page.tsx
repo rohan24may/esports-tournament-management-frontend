@@ -43,10 +43,15 @@ export default function TeamsPage() {
         </p>
 
         <div className="mt-12 flex items-center justify-between border-b border-[var(--border)] pb-4">
-          <h2 className="font-bold">ALL TEAMS</h2>
+          <div>
+  <h2 className="font-bold">ALL TEAMS</h2>
+  <p className="mt-1 text-xs text-[var(--muted)]">
+    DEMO DATA — SAMPLE TEAMS FOR UI PREVIEW
+  </p>
+</div>
 
           <span className="text-sm text-[var(--muted)]">
-            {teams.length.toString().padStart(2, "0")} TEAMS
+            {teams.length.toString().padStart(2, "0")} SAMPLE TEAMS
           </span>
         </div>
 

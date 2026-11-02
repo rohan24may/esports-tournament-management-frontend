@@ -28,10 +28,18 @@ export default function LeaderboardPage() {
           top competitors across completed tournament matches.
         </p>
 
-        <div className="mt-12 flex items-center justify-between border-b border-[var(--border)] pb-4">
-          <h2 className="font-bold">TOP PERFORMING PLAYERS</h2>
-          <span className="text-sm text-[var(--muted)]">BGMI</span>
-        </div>
+<div className="mt-12 flex flex-col gap-3 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 className="font-bold">TOP PERFORMING PLAYERS</h2>
+    <p className="mt-1 text-xs text-[var(--muted)]">
+      Sample rankings for interface preview
+    </p>
+  </div>
+
+  <span className="w-fit rounded-md border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--accent)]">
+    ALL GAMES
+  </span>
+</div>
 
         <div className="mt-6 overflow-x-auto rounded-lg border border-[var(--border)]">
           <table className="w-full min-w-[650px] text-left text-sm">
@@ -72,9 +80,10 @@ export default function LeaderboardPage() {
           </table>
         </div>
 
-        <p className="mt-4 text-xs text-[var(--muted)]">
-          Rankings are based on kills, followed by damage and assists.
-        </p>
+<p className="mt-4 text-xs text-[var(--muted)]">
+  DEMO DATA — Ranking logic and game-specific performance metrics
+  will be connected to the backend.
+</p>
       </section>
     </main>
   );

@@ -36,10 +36,13 @@ export default function PlayersPage() {
 
         <div className="mt-12 flex items-center justify-between border-b border-[var(--border)] pb-4">
           <h2 className="font-bold">ALL PLAYERS</h2>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+  DEMO DATA — SAMPLE PLAYERS FOR UI PREVIEW
+</p>
 
-          <span className="text-sm text-[var(--muted)]">
-            {players.length.toString().padStart(2, "0")} PLAYERS
-          </span>
+<span className="text-sm text-[var(--muted)]">
+  {players.length.toString().padStart(2, "0")} SAMPLE PLAYERS
+</span>
         </div>
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

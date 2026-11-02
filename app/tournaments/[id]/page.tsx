@@ -70,10 +70,15 @@ async function TournamentContent({
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16 md:px-12">
-      <p className="text-sm font-semibold tracking-widest text-[var(--accent)]">
-        TOURNAMENT DETAILS
-      </p>
+<div className="flex flex-wrap items-center gap-3">
+  <p className="text-sm font-semibold tracking-widest text-[var(--accent)]">
+    TOURNAMENT DETAILS
+  </p>
 
+  <span className="rounded border border-[var(--border)] px-2 py-1 text-[10px] font-semibold tracking-wider text-[var(--muted)]">
+    DEMO DATA
+  </span>
+</div>
       <h1 className="mt-4 text-4xl font-black md:text-6xl">
         {tournament.name}
       </h1>

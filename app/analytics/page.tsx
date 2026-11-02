@@ -4,8 +4,8 @@ import Navbar from "@/components/layout/navbar";
 const overviewStats = [
   { label: "COMPLETED MATCHES", value: "—" },
   { label: "PARTICIPATING TEAMS", value: "—" },
-  { label: "PLAYER KILLS", value: "—" },
-  { label: "TOTAL DAMAGE", value: "—" },
+  { label: "REGISTERED PLAYERS", value: "—" },
+  { label: "ACTIVE TOURNAMENTS", value: "—" },
 ];
 
 const analyticsSections = [
@@ -13,42 +13,42 @@ const analyticsSections = [
     number: "01",
     title: "Team Standings",
     description:
-      "Compare teams using match wins, total points and average placement.",
+      "Compare teams using match wins, points and game-specific ranking rules.",
     source: "team_standings.sql",
   },
   {
     number: "02",
     title: "Player Performance",
     description:
-      "Explore kills, assists, damage and survival time across matches.",
+      "Explore game-specific player statistics across completed matches.",
     source: "player_leaderboard.sql",
   },
   {
     number: "03",
     title: "Player Consistency",
     description:
-      "Compare average kills and damage per completed match.",
+      "Compare player performance across multiple matches.",
     source: "player_consistency_analysis.sql",
   },
   {
     number: "04",
     title: "Map Analysis",
     description:
-      "Analyze match counts, kills, assists and damage across maps.",
+      "Analyze match outcomes and performance across maps or arenas.",
     source: "map_performance_analysis.sql",
   },
   {
     number: "05",
     title: "Team Comparison",
     description:
-      "Compare match wins, points, kills, assists and damage.",
+      "Compare teams using wins, results and game-specific performance metrics.",
     source: "team_comparison.sql",
   },
   {
     number: "06",
     title: "Tournament Rankings",
     description:
-      "View team rankings across tournaments using performance metrics.",
+      "View team rankings across tournaments using their respective scoring systems.",
     source: "tournament_team_rankings.sql",
   },
 ];
@@ -69,13 +69,13 @@ export default function AnalyticsPage() {
 
         <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--muted)]">
           Explore tournament statistics, evaluate team performance
-          and discover insights from competitive matches.
+          and discover insights from competitive matches across multiple games.
         </p>
 
         {/* Overview */}
         <div className="mt-12">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-bold">TOURNAMENT OVERVIEW</h2>
+            <h2 className="font-bold">PLATFORM OVERVIEW</h2>
             <span className="text-xs text-[var(--muted)]">
               LIVE DATA — COMING SOON
             </span>
@@ -132,6 +132,11 @@ export default function AnalyticsPage() {
               </div>
             ))}
           </div>
+
+          <p className="mt-6 text-xs text-[var(--muted)]">
+            DEMO PREVIEW — Analytics and game-specific performance metrics
+            will be connected to the backend.
+          </p>
         </div>
       </section>
     </main>
