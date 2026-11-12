@@ -1,19 +1,24 @@
 
+import { Suspense } from "react";
+import { connection } from "next/server";
+
 import Navbar from "@/components/layout/navbar";
 import PlayerCard from "@/components/ui/PlayerCard";
+import { apiFetch } from "@/lib/api";
 
-const players = [
-  { name: "Aarav Sharma", country: "India", game: "BGMI", inGameId: "BGMI_1" },
-  { name: "Vihaan Patel", country: "India", game: "BGMI", inGameId: "BGMI_2" },
-  { name: "Arjun Singh", country: "India", game: "BGMI", inGameId: "BGMI_3" },
-  { name: "Reyansh Kumar", country: "India", game: "BGMI", inGameId: "BGMI_4" },
-  { name: "Aditya Verma", country: "India", game: "BGMI", inGameId: "BGMI_5" },
-  { name: "Kabir Mehta", country: "India", game: "BGMI", inGameId: "BGMI_6" },
-  { name: "Ishaan Gupta", country: "India", game: "BGMI", inGameId: "BGMI_7" },
-  { name: "Rohan Malhotra", country: "India", game: "BGMI", inGameId: "BGMI_8" },
-  { name: "Dev Shah", country: "India", game: "BGMI", inGameId: "BGMI_9" },
-  { name: "Krish Jain", country: "India", game: "BGMI", inGameId: "BGMI_10" },
-];
+interface Player {
+  playerId: number;
+  playerName: string;
+  country: string;
+  dateOfBirth: string;
+}
+
+interface PlayerGameProfile {
+  profileId: number;
+  playerId: number;
+  gameName: string;
+  inGameId: string;
+}
 
 export default function PlayersPage() {
   return (
@@ -34,18 +39,91 @@ export default function PlayersPage() {
           and follow their competitive journey.
         </p>
 
-        <div className="mt-12 flex items-center justify-between border-b border-[var(--border)] pb-4">
-          <h2 className="font-bold">ALL PLAYERS</h2>
+        <Suspense
+          fallback={
+            <p className="mt-8 text-sm text-[var(--muted)]">
+              Loading players...
+            </p>
+          }
+        >
+          <PlayersContent />
+        </Suspense>
+      </section>
+    </main>
+  );
+}
 
-          <span className="text-sm text-[var(--muted)]">
-            {players.length.toString().padStart(2, "0")} PLAYERS
-          </span>
+async function PlayersContent() {
+  await connection();
+
+  let players: Player[] = [];
+  let profiles: PlayerGameProfile[] = [];
+  let error = false;
+
+  try {
+    [players, profiles] = await Promise.all([
+      apiFetch<Player[]>("/players"),
+      apiFetch<PlayerGameProfile[]>("/player-game-profiles"),
+    ]);
+  } catch (err) {
+    console.error("Failed to load players:", err);
+    error = true;
+  }
+
+  const playerProfiles = players.flatMap((player) => {
+    const gameProfiles = profiles.filter(
+      (profile) => profile.playerId === player.playerId
+    );
+
+    if (gameProfiles.length === 0) {
+      return [
+        {
+          key: `player-${player.playerId}`,
+          name: player.playerName,
+          country: player.country,
+          game: "No Game Profile",
+          inGameId: "—",
+        },
+      ];
+    }
+
+    return gameProfiles.map((profile) => ({
+      key: String(profile.profileId),
+      name: player.playerName,
+      country: player.country,
+      game: profile.gameName,
+      inGameId: profile.inGameId,
+    }));
+  });
+
+  return (
+    <>
+      <div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-bold">ALL PLAYERS</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            LIVE PLAYER DATA · {profiles.length} GAME PROFILES
+          </p>
         </div>
 
+        <span className="text-sm text-[var(--muted)]">
+          {players.length.toString().padStart(2, "0")} PLAYERS
+        </span>
+      </div>
+
+      {error ? (
+        <p className="mt-8 text-sm text-red-400">
+          Unable to load players. Please try again later.
+        </p>
+      ) : playerProfiles.length === 0 ? (
+        <p className="mt-8 text-sm text-[var(--muted)]">
+          No players available.
+        </p>
+      ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {players.map((player) => (
+          {playerProfiles.map((player) => (
             <PlayerCard
-              key={player.name}
+              key={player.key}
               name={player.name}
               country={player.country}
               game={player.game}
@@ -53,7 +131,8 @@ export default function PlayersPage() {
             />
           ))}
         </div>
-      </section>
-    </main>
+      )}
+    </>
   );
 }
+
