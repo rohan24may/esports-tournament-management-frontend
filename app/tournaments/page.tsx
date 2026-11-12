@@ -1,9 +1,10 @@
 
+import { Suspense } from "react";
+import { connection } from "next/server";
+
 import Navbar from "@/components/layout/navbar";
 import TournamentCard from "@/components/ui/TournamentCard";
 import { apiFetch } from "@/lib/api";
-
-export const instant = false;
 
 interface Tournament {
   tournamentId: number;
@@ -33,17 +34,7 @@ function formatPrize(amount: number) {
   }).format(amount);
 }
 
-export default async function TournamentsPage() {
-  let tournaments: Tournament[] = [];
-  let error = false;
-
-  try {
-    tournaments = await apiFetch<Tournament[]>("/tournaments");
-  } catch (err) {
-    console.error("Failed to fetch tournaments:", err);
-    error = true;
-  }
-
+export default function TournamentsPage() {
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -62,43 +53,71 @@ export default async function TournamentsPage() {
           and track prize pools across different games.
         </p>
 
-        <div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-bold">ALL TOURNAMENTS</h2>
-            <p className="mt-1 text-xs text-[var(--muted)]">
-              LIVE TOURNAMENT DATA
+        <Suspense
+          fallback={
+            <p className="mt-8 text-sm text-[var(--muted)]">
+              Loading tournaments...
             </p>
-          </div>
-
-          <span className="text-sm text-[var(--muted)]">
-            {tournaments.length.toString().padStart(2, "0")} EVENTS
-          </span>
-        </div>
-
-        {error ? (
-          <p className="mt-8 text-sm text-red-400">
-            Unable to load tournaments. Please try again later.
-          </p>
-        ) : tournaments.length === 0 ? (
-          <p className="mt-8 text-sm text-[var(--muted)]">
-            No tournaments available.
-          </p>
-        ) : (
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {tournaments.map((tournament) => (
-              <TournamentCard
-                key={tournament.tournamentId}
-                id={String(tournament.tournamentId)}
-                name={tournament.tournamentName}
-                game={tournament.gameName}
-                prize={formatPrize(tournament.prizePool)}
-                dates={`${formatDate(tournament.startDate)} — ${formatDate(tournament.endDate)}`}
-                status={tournament.status}
-              />
-            ))}
-          </div>
-        )}
+          }
+        >
+          <TournamentsContent />
+        </Suspense>
       </section>
     </main>
+  );
+}
+
+async function TournamentsContent() {
+  await connection();
+
+  let tournaments: Tournament[] = [];
+  let error = false;
+
+  try {
+    tournaments = await apiFetch<Tournament[]>("/tournaments");
+  } catch (err) {
+    console.error("Failed to fetch tournaments:", err);
+    error = true;
+  }
+
+  return (
+    <>
+      <div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-bold">ALL TOURNAMENTS</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            LIVE TOURNAMENT DATA
+          </p>
+        </div>
+
+        <span className="text-sm text-[var(--muted)]">
+          {tournaments.length.toString().padStart(2, "0")} EVENTS
+        </span>
+      </div>
+
+      {error ? (
+        <p className="mt-8 text-sm text-red-400">
+          Unable to load tournaments. Please try again later.
+        </p>
+      ) : tournaments.length === 0 ? (
+        <p className="mt-8 text-sm text-[var(--muted)]">
+          No tournaments available.
+        </p>
+      ) : (
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
+          {tournaments.map((tournament) => (
+            <TournamentCard
+              key={tournament.tournamentId}
+              id={String(tournament.tournamentId)}
+              name={tournament.tournamentName}
+              game={tournament.gameName}
+              prize={formatPrize(tournament.prizePool)}
+              dates={`${formatDate(tournament.startDate)} — ${formatDate(tournament.endDate)}`}
+              status={tournament.status}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
