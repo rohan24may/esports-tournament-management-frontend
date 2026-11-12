@@ -1,27 +1,49 @@
 
 import Navbar from "@/components/layout/navbar";
 import TournamentCard from "@/components/ui/TournamentCard";
+import { apiFetch } from "@/lib/api";
 
-const tournaments = [
-  {
-    id: "1",
-    name: "BGMI Championship 2026",
-    game: "BGMI",
-    prize: "₹1,00,000",
-    dates: "20 OCT — 22 OCT 2026",
-    status: "UPCOMING",
-  },
-  {
-    id: "2",
-    name: "Valorant Cup 2026",
-    game: "Valorant",
-    prize: "₹50,000",
-    dates: "25 OCT — 27 OCT 2026",
-    status: "UPCOMING",
-  },
-];
+export const instant = false;
 
-export default function TournamentsPage() {
+interface Tournament {
+  tournamentId: number;
+  tournamentName: string;
+  gameName: string;
+  prizePool: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
+function formatDate(date: string) {
+  return new Date(`${date}T00:00:00`)
+    .toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    .toUpperCase();
+}
+
+function formatPrize(amount: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+export default async function TournamentsPage() {
+  let tournaments: Tournament[] = [];
+  let error = false;
+
+  try {
+    tournaments = await apiFetch<Tournament[]>("/tournaments");
+  } catch (err) {
+    console.error("Failed to fetch tournaments:", err);
+    error = true;
+  }
+
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -40,32 +62,42 @@ export default function TournamentsPage() {
           and track prize pools across different games.
         </p>
 
-<div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
-  <div>
-    <h2 className="font-bold">ALL TOURNAMENTS</h2>
-    <p className="mt-1 text-xs text-[var(--muted)]">
-      DEMO DATA — SAMPLE TOURNAMENTS FOR UI PREVIEW
-    </p>
-  </div>
+        <div className="mt-12 flex flex-col gap-2 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-bold">ALL TOURNAMENTS</h2>
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              LIVE TOURNAMENT DATA
+            </p>
+          </div>
 
-  <span className="text-sm text-[var(--muted)]">
-    {tournaments.length.toString().padStart(2, "0")} SAMPLE EVENTS
-  </span>
-</div>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {tournaments.map((tournament) => (
-            <TournamentCard
-              key={tournament.id}
-              id={tournament.id}
-              name={tournament.name}
-              game={tournament.game}
-              prize={tournament.prize}
-              dates={tournament.dates}
-              status={tournament.status}
-            />
-          ))}
+          <span className="text-sm text-[var(--muted)]">
+            {tournaments.length.toString().padStart(2, "0")} EVENTS
+          </span>
         </div>
+
+        {error ? (
+          <p className="mt-8 text-sm text-red-400">
+            Unable to load tournaments. Please try again later.
+          </p>
+        ) : tournaments.length === 0 ? (
+          <p className="mt-8 text-sm text-[var(--muted)]">
+            No tournaments available.
+          </p>
+        ) : (
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            {tournaments.map((tournament) => (
+              <TournamentCard
+                key={tournament.tournamentId}
+                id={String(tournament.tournamentId)}
+                name={tournament.tournamentName}
+                game={tournament.gameName}
+                prize={formatPrize(tournament.prizePool)}
+                dates={`${formatDate(tournament.startDate)} — ${formatDate(tournament.endDate)}`}
+                status={tournament.status}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
