@@ -1,10 +1,11 @@
-export const instant = false;
+
+import { Suspense } from "react";
+import { connection } from "next/server";
 
 import Navbar from "@/components/layout/navbar";
 import StatCard from "@/components/ui/StatCard";
 import TournamentCard from "@/components/ui/TournamentCard";
 import { apiFetch } from "@/lib/api";
-
 
 interface DashboardSummary {
   totalGames: number;
@@ -42,31 +43,7 @@ function formatPrize(amount: number) {
   }).format(amount);
 }
 
-export default async function Home() {
-
-
-  let summary: DashboardSummary | null = null;
-  let tournaments: Tournament[] = [];
-
-  try {
-    [summary, tournaments] = await Promise.all([
-      apiFetch<DashboardSummary>("/dashboard/summary"),
-      apiFetch<Tournament[]>("/tournaments"),
-    ]);
-  } catch (error) {
-    console.error("Failed to load dashboard data:", error);
-  }
-
-
-  const stats = summary
-    ? [
-        { label: "TOURNAMENTS", value: summary.totalTournaments },
-        { label: "REGISTERED TEAMS", value: summary.totalTeams },
-        { label: "PLAYERS", value: summary.totalPlayers },
-        { label: "GAMES", value: summary.totalGames },
-      ]
-    : [];
-
+export default function Home() {
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -98,10 +75,71 @@ export default async function Home() {
         </a>
       </section>
 
+      {/* Dynamic Dashboard Data */}
+      <Suspense
+        fallback={
+          <div className="px-6 py-20 text-sm text-[var(--muted)] md:px-12">
+            Loading dashboard data...
+          </div>
+        }
+      >
+        <DashboardContent />
+      </Suspense>
+
+      {/* Footer */}
+      <footer
+        id="about"
+        className="border-t border-[var(--border)] px-6 py-8 md:px-12"
+      >
+        <div className="flex flex-col justify-between gap-4 md:flex-row">
+          <p className="font-black">
+            DROPZONE<span className="text-[var(--accent)]">.</span>
+          </p>
+
+          <p className="text-sm text-[var(--muted)]">
+            Competitive intelligence for esports.
+          </p>
+
+          <p className="text-xs text-[var(--muted)]">
+            © 2026 DROPZONE. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+async function DashboardContent() {
+  await connection();
+
+  let summary: DashboardSummary | null = null;
+  let tournaments: Tournament[] = [];
+
+  try {
+    [summary, tournaments] = await Promise.all([
+      apiFetch<DashboardSummary>("/dashboard/summary"),
+      apiFetch<Tournament[]>("/tournaments"),
+    ]);
+  } catch (error) {
+    console.error("Failed to load dashboard data:", error);
+  }
+
+  const stats = summary
+    ? [
+        { label: "TOURNAMENTS", value: summary.totalTournaments },
+        { label: "REGISTERED TEAMS", value: summary.totalTeams },
+        { label: "PLAYERS", value: summary.totalPlayers },
+        { label: "GAMES", value: summary.totalGames },
+      ]
+    : [];
+
+  return (
+    <>
       {/* Platform Statistics */}
       <section id="statistics" className="px-6 pb-20 md:px-12">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-bold">PLATFORM OVERVIEW</h2>
+
           <span className="text-xs text-[var(--muted)]">
             {summary ? "LIVE DATA" : "DATA UNAVAILABLE"}
           </span>
@@ -123,10 +161,12 @@ export default async function Home() {
               label="ONGOING MATCHES"
               value={String(summary.ongoingMatches).padStart(2, "0")}
             />
+
             <StatCard
               label="PRIZE MONEY AWARDED"
               value={formatPrize(summary.totalPrizeMoneyAwarded)}
             />
+
             <StatCard
               label="ACTIVE SPONSORSHIP"
               value={formatPrize(summary.activeSponsorshipValue)}
@@ -176,24 +216,6 @@ export default async function Home() {
           </p>
         )}
       </section>
-
-      {/* Footer */}
-      <footer
-        id="about"
-        className="border-t border-[var(--border)] px-6 py-8 md:px-12"
-      >
-        <div className="flex flex-col justify-between gap-4 md:flex-row">
-          <p className="font-black">
-            DROPZONE<span className="text-[var(--accent)]">.</span>
-          </p>
-          <p className="text-sm text-[var(--muted)]">
-            Competitive intelligence for esports.
-          </p>
-          <p className="text-xs text-[var(--muted)]">
-            © 2026 DROPZONE. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </main>
+    </>
   );
 }

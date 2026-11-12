@@ -1,8 +1,9 @@
 
+import { Suspense } from "react";
+import { connection } from "next/server";
+
 import Navbar from "@/components/layout/navbar";
 import { apiFetch } from "@/lib/api";
-
-export const instant = false;
 
 interface LeaderboardPlayer {
   playerId: number;
@@ -53,18 +54,23 @@ function LeaderboardTable({
                 <td className="px-5 py-5 font-bold text-[var(--accent)]">
                   #{index + 1}
                 </td>
+
                 <td className="px-5 py-5 font-semibold">
                   {player.playerName}
                 </td>
+
                 <td className="px-5 py-5 text-[var(--muted)]">
                   {player.teamName}
                 </td>
+
                 <td className={`px-5 py-5 ${metric === "totalKills" ? "font-bold text-[var(--accent)]" : ""}`}>
                   {player.totalKills}
                 </td>
+
                 <td className={`px-5 py-5 ${metric === "totalDamage" ? "font-bold text-[var(--accent)]" : ""}`}>
                   {player.totalDamage.toLocaleString("en-IN")}
                 </td>
+
                 <td className={`px-5 py-5 ${metric === "totalAssists" ? "font-bold text-[var(--accent)]" : ""}`}>
                   {player.totalAssists}
                 </td>
@@ -85,23 +91,7 @@ function LeaderboardTable({
   );
 }
 
-export default async function LeaderboardPage() {
-  let kills: LeaderboardPlayer[] = [];
-  let damage: LeaderboardPlayer[] = [];
-  let assists: LeaderboardPlayer[] = [];
-  let error = false;
-
-  try {
-    [kills, damage, assists] = await Promise.all([
-      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-kills"),
-      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-damage"),
-      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-assists"),
-    ]);
-  } catch (err) {
-    console.error("Failed to load leaderboards:", err);
-    error = true;
-  }
-
+export default function LeaderboardPage() {
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -120,45 +110,79 @@ export default async function LeaderboardPage() {
           top competitors across completed tournament matches.
         </p>
 
-        {error ? (
-          <p className="mt-10 text-sm text-red-400">
-            Unable to load leaderboards. Please try again later.
-          </p>
-        ) : (
-          <>
-            <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
-              <div>
-                <h2 className="font-bold">TOP PERFORMING PLAYERS</h2>
-                <p className="mt-1 text-xs text-[var(--muted)]">
-                  LIVE RANKINGS FROM MATCH PERFORMANCE DATA
-                </p>
-              </div>
-
-              <span className="w-fit rounded-md border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--accent)]">
-                ALL GAMES
-              </span>
-            </div>
-
-            <LeaderboardTable
-              title="TOP KILLS"
-              players={kills}
-              metric="totalKills"
-            />
-
-            <LeaderboardTable
-              title="TOP DAMAGE"
-              players={damage}
-              metric="totalDamage"
-            />
-
-            <LeaderboardTable
-              title="TOP ASSISTS"
-              players={assists}
-              metric="totalAssists"
-            />
-          </>
-        )}
+        <Suspense
+          fallback={
+            <p className="mt-10 text-sm text-[var(--muted)]">
+              Loading leaderboards...
+            </p>
+          }
+        >
+          <LeaderboardContent />
+        </Suspense>
       </section>
     </main>
+  );
+}
+
+async function LeaderboardContent() {
+  await connection();
+
+  let kills: LeaderboardPlayer[] = [];
+  let damage: LeaderboardPlayer[] = [];
+  let assists: LeaderboardPlayer[] = [];
+  let error = false;
+
+  try {
+    [kills, damage, assists] = await Promise.all([
+      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-kills"),
+      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-damage"),
+      apiFetch<LeaderboardPlayer[]>("/leaderboards/top-assists"),
+    ]);
+  } catch (err) {
+    console.error("Failed to load leaderboards:", err);
+    error = true;
+  }
+
+  if (error) {
+    return (
+      <p className="mt-10 text-sm text-red-400">
+        Unable to load leaderboards. Please try again later.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+        <div>
+          <h2 className="font-bold">TOP PERFORMING PLAYERS</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            LIVE RANKINGS FROM MATCH PERFORMANCE DATA
+          </p>
+        </div>
+
+        <span className="w-fit rounded-md border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--accent)]">
+          ALL GAMES
+        </span>
+      </div>
+
+      <LeaderboardTable
+        title="TOP KILLS"
+        players={kills}
+        metric="totalKills"
+      />
+
+      <LeaderboardTable
+        title="TOP DAMAGE"
+        players={damage}
+        metric="totalDamage"
+      />
+
+      <LeaderboardTable
+        title="TOP ASSISTS"
+        players={assists}
+        metric="totalAssists"
+      />
+    </>
   );
 }
