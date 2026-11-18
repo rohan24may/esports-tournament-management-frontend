@@ -115,14 +115,19 @@ async function DashboardContent() {
   let summary: DashboardSummary | null = null;
   let tournaments: Tournament[] = [];
 
-  try {
-    [summary, tournaments] = await Promise.all([
-      apiFetch<DashboardSummary>("/dashboard/summary"),
-      apiFetch<Tournament[]>("/tournaments"),
-    ]);
-  } catch (error) {
-    console.error("Failed to load dashboard data:", error);
-  }
+// Fetch dashboard statistics independently
+try {
+  summary = await apiFetch<DashboardSummary>("/dashboard/summary");
+} catch (error) {
+  console.error("Dashboard summary request failed:", error);
+}
+
+// Fetch tournaments independently
+try {
+  tournaments = await apiFetch<Tournament[]>("/tournaments");
+} catch (error) {
+  console.error("Tournament request failed:", error);
+}
 
   const stats = summary
     ? [
