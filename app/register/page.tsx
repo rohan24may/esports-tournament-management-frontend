@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { register, getDashboardPath } from "@/lib/auth";
+import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { register, getPostLoginPath } from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,7 +15,12 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+const searchParams = useSearchParams();
+const redirectTo = searchParams.get("redirectTo");
 
+const loginHref = redirectTo
+  ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
+  : "/login";
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -34,7 +39,8 @@ export default function RegisterPage() {
 
     try {
       const user = await register({ fullName, email, password });
-      router.replace(getDashboardPath(user.role));
+     router.replace(getPostLoginPath(user.role, redirectTo));
+router.refresh();
     } catch (err) {
       setError(
         err instanceof Error
@@ -151,7 +157,7 @@ export default function RegisterPage() {
           <p className="mt-7 text-center text-sm text-[#9298a1]">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={loginHref}
               className="font-semibold text-[#d6ff3f] hover:underline"
             >
               Sign in

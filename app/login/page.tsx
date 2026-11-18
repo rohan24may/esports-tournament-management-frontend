@@ -12,12 +12,20 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const searchParams = useSearchParams();
+
+  // Get redirect destination from URL
+  const redirectTo = searchParams.get("redirectTo");
+
+  // Preserve redirect when navigating to registration
+  const registerHref = redirectTo
+    ? `/register?redirectTo=${encodeURIComponent(redirectTo)}`
+    : "/register";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,16 +34,19 @@ export default function LoginPage() {
 
     try {
       const user = await login({ email, password });
-      const destination = getPostLoginPath(
-  user.role,
-  searchParams.get("redirectTo")
-);
 
-router.replace(destination);
-router.refresh();
+      const destination = getPostLoginPath(
+        user.role,
+        redirectTo
+      );
+
+      router.replace(destination);
+      router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Login failed. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Login failed. Please try again."
       );
     } finally {
       setLoading(false);

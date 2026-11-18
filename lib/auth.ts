@@ -69,10 +69,19 @@ export function getAuthSession(): AuthResponse | null {
   }
 }
 
-export function getDashboardPath(role: AuthResponse["role"]): string {
-  return role === "ORGANIZER"
-    ? "/organizer/dashboard"
-    : "/manager/dashboard";
+export function getDashboardPath(
+  role: AuthResponse["role"]
+): string {
+  switch (role) {
+    case "ORGANIZER":
+      return "/organizer/dashboard";
+
+    case "TEAM_MANAGER":
+      return "/manager/dashboard";
+
+    default:
+      throw new Error("Invalid user role");
+  }
 }
 
 export function getPostLoginPath(
