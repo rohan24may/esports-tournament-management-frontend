@@ -22,6 +22,7 @@ const loginHref = redirectTo
   ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
   : "/login";
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    console.log("REGISTER FORM SUBMITTED");
     e.preventDefault();
     setError("");
 
