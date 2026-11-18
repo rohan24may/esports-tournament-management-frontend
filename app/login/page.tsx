@@ -1,10 +1,14 @@
 
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { login, getDashboardPath } from "@/lib/auth";
+
+import {
+  login,
+  getPostLoginPath,
+} from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,7 +26,13 @@ export default function LoginPage() {
 
     try {
       const user = await login({ email, password });
-      router.replace(getDashboardPath(user.role));
+      const destination = getPostLoginPath(
+  user.role,
+  searchParams.get("redirectTo")
+);
+
+router.replace(destination);
+router.refresh();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Login failed. Please try again."
