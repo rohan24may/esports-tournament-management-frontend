@@ -1,4 +1,3 @@
-
 import { apiFetch } from "@/lib/api";
 
 export interface AuthResponse {
@@ -22,6 +21,7 @@ export interface LoginRequest {
 }
 
 const AUTH_STORAGE_KEY = "dropzone_auth";
+const AUTH_CHANGE_EVENT = "dropzone-auth-change";
 
 export async function login(
   credentials: LoginRequest
@@ -48,10 +48,15 @@ export async function register(
 }
 
 export function saveAuthSession(user: AuthResponse): void {
+  if (typeof window === "undefined") return;
+
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
 
 export function getAuthSession(): AuthResponse | null {
+  if (typeof window === "undefined") return null;
+
   const stored = localStorage.getItem(AUTH_STORAGE_KEY);
 
   if (!stored) return null;
@@ -64,11 +69,59 @@ export function getAuthSession(): AuthResponse | null {
   }
 }
 
-export function getDashboardPath(role: string): string {
-  if (role === "ORGANIZER") return "/organizer/dashboard";
-  return "/manager/dashboard";
+export function getDashboardPath(
+  role: AuthResponse["role"]
+): string {
+  switch (role) {
+    case "ORGANIZER":
+      return "/organizer/dashboard";
+
+    case "TEAM_MANAGER":
+      return "/manager/dashboard";
+
+    default:
+      throw new Error("Invalid user role");
+  }
+}
+
+export function getPostLoginPath(
+  role: AuthResponse["role"],
+  redirectTo: string | null
+): string {
+  if (redirectTo) {
+    try {
+      const destination = new URL(
+        redirectTo,
+        "https://dropzone.local"
+      );
+
+      if (
+        destination.origin === "https://dropzone.local" &&
+        redirectTo.startsWith("/") &&
+        !redirectTo.startsWith("//") &&
+        !redirectTo.includes("\\")
+      ) {
+        return (
+          destination.pathname +
+          destination.search +
+          destination.hash
+        );
+      }
+    } catch {
+      // Use the role-based dashboard for an invalid redirect.
+    }
+  }
+
+  return getDashboardPath(role);
+}
+
+export function getLoginRedirectUrl(currentPath: string): string {
+  return `/login?redirectTo=${encodeURIComponent(currentPath)}`;
 }
 
 export function logout(): void {
+  if (typeof window === "undefined") return;
+
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }

@@ -1,18 +1,31 @@
 
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { login, getDashboardPath } from "@/lib/auth";
+
+import {
+  login,
+  getPostLoginPath,
+} from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Get redirect destination from URL
+  const redirectTo = searchParams.get("redirectTo");
+
+  // Preserve redirect when navigating to registration
+  const registerHref = redirectTo
+    ? `/register?redirectTo=${encodeURIComponent(redirectTo)}`
+    : "/register";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,10 +34,19 @@ export default function LoginPage() {
 
     try {
       const user = await login({ email, password });
-      router.replace(getDashboardPath(user.role));
+
+      const destination = getPostLoginPath(
+        user.role,
+        redirectTo
+      );
+
+      router.replace(destination);
+      router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Login failed. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Login failed. Please try again."
       );
     } finally {
       setLoading(false);

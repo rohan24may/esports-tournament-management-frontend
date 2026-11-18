@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { getDashboardPath, logout } from "@/lib/auth";
 
 const navLinks = [
   { label: "Overview", href: "/" },
@@ -15,10 +18,24 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { user, isLoading } = useAuth();
+
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  function handleLogout() {
+    logout();
+    setMenuOpen(false);
+    router.replace("/");
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
 
   return (
     <nav className="relative border-b border-[var(--border)] px-6 py-5 md:px-12">
@@ -26,7 +43,7 @@ export default function Navbar() {
         <Link
           href="/"
           className="text-2xl font-black tracking-tight"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
         >
           DROPZONE<span className="text-[var(--accent)]">.</span>
         </Link>
@@ -48,13 +65,51 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Explore */}
-        <Link
-          href="/tournaments"
-          className="hidden rounded-md bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-white md:block"
-        >
-          Explore
-        </Link>
+        {/* Desktop Actions */}
+        <div className="hidden items-center gap-3 md:flex">
+          <Link
+            href="/tournaments"
+            className="rounded-md bg-[var(--accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-white"
+          >
+            Explore
+          </Link>
+
+          {!isLoading &&
+            (user ? (
+              <>
+                <Link
+                  href={getDashboardPath(user.role)}
+                  className="rounded-md border border-[var(--border)] px-4 py-2.5 text-sm font-semibold transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-3 py-2.5 text-sm text-[var(--muted)] transition hover:text-red-400"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-3 py-2.5 text-sm font-semibold transition hover:text-[var(--accent)]"
+                >
+                  Login
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="rounded-md border border-[var(--accent)] px-4 py-2.5 text-sm font-bold text-[var(--accent)] transition hover:bg-[var(--accent)] hover:text-black"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ))}
+        </div>
 
         {/* Mobile Menu Button */}
         <button
@@ -80,7 +135,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className={`text-sm transition ${
                   isActive(link.href)
                     ? "font-semibold text-[var(--accent)]"
@@ -90,6 +145,49 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            <div className="border-t border-[var(--border)] pt-5">
+              <div className="flex flex-col gap-4">
+                {!isLoading &&
+                  (user ? (
+                    <>
+                      <Link
+                        href={getDashboardPath(user.role)}
+                        onClick={closeMenu}
+                        className="text-sm font-semibold text-[var(--accent)]"
+                      >
+                        Dashboard
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="text-left text-sm text-red-400"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={closeMenu}
+                        className="text-sm font-semibold"
+                      >
+                        Login
+                      </Link>
+
+                      <Link
+                        href="/register"
+                        onClick={closeMenu}
+                        className="text-sm font-semibold text-[var(--accent)]"
+                      >
+                        Create Account
+                      </Link>
+                    </>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "DROPZONE. | Esports Analytics",
@@ -14,21 +15,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body>
-        <Suspense
-          fallback={
-            <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
-              <p className="text-sm font-bold tracking-widest text-[var(--accent)]">
-                LOADING DROPZONE...
-              </p>
-            </main>
-          }
-        >
-          {children}
-        </Suspense>
-      </body>
-    </html>
-  );
+ return (
+  <html lang="en">
+    <body>
+      <Suspense
+        fallback={
+          <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
+            <p className="text-sm font-bold tracking-widest text-[var(--accent)]">
+              LOADING DROPZONE...
+            </p>
+          </main>
+        }
+      >
+        <AuthProvider>{children}</AuthProvider>
+      </Suspense>
+    </body>
+  </html>
+);
 }
