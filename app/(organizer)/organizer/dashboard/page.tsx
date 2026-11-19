@@ -42,6 +42,12 @@ const dashboardLinks = [
   href: "/organizer/registrations",
   icon: "📋",
 },
+{
+  title: "Matches",
+  description: "Schedule matches, manage squads and enter results.",
+  href: "/organizer/matches",
+  icon: "🎯",
+},
 ];
 
 export default function OrganizerDashboard() {
