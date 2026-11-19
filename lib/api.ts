@@ -1,5 +1,8 @@
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL =
+  typeof window === "undefined"
+    ? process.env.API_INTERNAL_URL
+    : process.env.NEXT_PUBLIC_API_URL;
 const AUTH_STORAGE_KEY = "dropzone_auth";
 
 export async function apiFetch<T>(
