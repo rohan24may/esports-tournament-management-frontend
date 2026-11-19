@@ -13,6 +13,8 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  role: "TEAM_MANAGER" | "ORGANIZER";
+  inviteCode?: string;
 }
 
 export interface LoginRequest {
