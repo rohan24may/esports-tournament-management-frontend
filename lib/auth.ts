@@ -6,14 +6,14 @@ export interface AuthResponse {
   userId: number;
   fullName: string;
   email: string;
-  role: "TEAM_MANAGER" | "ORGANIZER";
+  role: UserRole;
 }
 
 export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
-  role: "TEAM_MANAGER" | "ORGANIZER";
+  role: UserRole;
   inviteCode?: string;
 }
 
@@ -71,9 +71,7 @@ export function getAuthSession(): AuthResponse | null {
   }
 }
 
-export function getDashboardPath(
-  role: AuthResponse["role"]
-): string {
+export function getDashboardPath(role: UserRole): string {
   switch (role) {
     case "ORGANIZER":
       return "/organizer/dashboard";
@@ -81,8 +79,11 @@ export function getDashboardPath(
     case "TEAM_MANAGER":
       return "/manager/dashboard";
 
-    default:
-      throw new Error("Invalid user role");
+    case "PLAYER":
+      return "/players";
+
+    case "VIEWER":
+      return "/";
   }
 }
 
@@ -127,3 +128,8 @@ export function logout(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
+export type UserRole =
+  | "TEAM_MANAGER"
+  | "ORGANIZER"
+  | "PLAYER"
+  | "VIEWER";

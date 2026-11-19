@@ -4,7 +4,11 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { register, getPostLoginPath } from "@/lib/auth";
+import {
+  register,
+  getPostLoginPath,
+  type UserRole,
+} from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,7 +22,7 @@ export default function RegisterPage() {
 const searchParams = useSearchParams();
 const redirectTo = searchParams.get("redirectTo");
 
-const [role, setRole] = useState<"TEAM_MANAGER" | "ORGANIZER">("TEAM_MANAGER");
+const [role, setRole] = useState<UserRole>("TEAM_MANAGER");
 const [inviteCode, setInviteCode] = useState("");
 
 const loginHref = redirectTo
@@ -46,7 +50,7 @@ const loginHref = redirectTo
     setLoading(true);
 
     try {
-     const user = await register({
+const user = await register({
   fullName,
   email,
   password,
@@ -124,17 +128,16 @@ router.refresh();
   <label className="block text-sm font-medium mb-2">
     Account type
   </label>
-
-  <select
-    value={role}
-    onChange={(e) =>
-      setRole(e.target.value as "TEAM_MANAGER" | "ORGANIZER")
-    }
-    className="w-full rounded-lg border border-[#252b33] bg-[#090b0e] px-4 py-3 outline-none focus:border-[#d6ff3f] transition"
-  >
-    <option value="TEAM_MANAGER">Team Manager</option>
-    <option value="ORGANIZER">Tournament Organizer</option>
-  </select>
+<select
+  value={role}
+  onChange={(e) => setRole(e.target.value as UserRole)}
+  className="w-full rounded-lg border border-[#252b33] bg-[#090b0e] px-4 py-3 outline-none focus:border-[#d6ff3f] transition"
+>
+  <option value="TEAM_MANAGER">Team Manager</option>
+  <option value="ORGANIZER">Tournament Organizer</option>
+  <option value="PLAYER">Player</option>
+  <option value="VIEWER">Viewer</option>
+</select>
 </div>
 
 {role === "ORGANIZER" && (
