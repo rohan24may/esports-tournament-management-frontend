@@ -9,7 +9,7 @@ const dashboardLinks = [
   {
     title: "Tournaments",
     description: "Create, manage and organize esports tournaments.",
-    href: "/tournaments",
+    href: "/organizer/tournaments",
     icon: "🏆",
   },
   {
@@ -36,6 +36,18 @@ const dashboardLinks = [
     href: "/players",
     icon: "👤",
   },
+  {
+  title: "Registrations",
+  description: "Review and manage tournament registrations.",
+  href: "/organizer/registrations",
+  icon: "📋",
+},
+{
+  title: "Matches",
+  description: "Schedule matches, manage squads and enter results.",
+  href: "/organizer/matches",
+  icon: "🎯",
+},
 ];
 
 export default function OrganizerDashboard() {
@@ -165,7 +177,7 @@ export default function OrganizerDashboard() {
             </p>
 
             <Link
-              href="/tournaments"
+              href="/organizer/tournaments"
               className="inline-flex mt-6 bg-[#d6ff3f] text-black font-bold text-sm px-6 py-3 rounded-lg hover:bg-[#c5ed32] transition"
             >
               Explore tournaments →

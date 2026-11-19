@@ -4,7 +4,11 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { register, getPostLoginPath } from "@/lib/auth";
+import {
+  register,
+  getPostLoginPath,
+  type UserRole,
+} from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,6 +21,9 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
 const searchParams = useSearchParams();
 const redirectTo = searchParams.get("redirectTo");
+
+const [role, setRole] = useState<UserRole>("TEAM_MANAGER");
+const [inviteCode, setInviteCode] = useState("");
 
 const loginHref = redirectTo
   ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
@@ -35,11 +42,21 @@ const loginHref = redirectTo
       setError("Password must contain at least 8 characters.");
       return;
     }
+    if (role === "ORGANIZER" && !inviteCode.trim()) {
+  setError("Organizer signup requires an invitation code.");
+  return;
+}
 
     setLoading(true);
 
     try {
-      const user = await register({ fullName, email, password });
+const user = await register({
+  fullName,
+  email,
+  password,
+  role,
+  inviteCode: role === "ORGANIZER" ? inviteCode.trim() : undefined,
+});
      router.replace(getPostLoginPath(user.role, redirectTo));
 router.refresh();
     } catch (err) {
@@ -107,6 +124,42 @@ router.refresh();
                 className="w-full rounded-lg border border-[#252b33] bg-[#090b0e] px-4 py-3 outline-none focus:border-[#d6ff3f] transition"
               />
             </div>
+            <div>
+  <label className="block text-sm font-medium mb-2">
+    Account type
+  </label>
+<select
+  value={role}
+  onChange={(e) => setRole(e.target.value as UserRole)}
+  className="w-full rounded-lg border border-[#252b33] bg-[#090b0e] px-4 py-3 outline-none focus:border-[#d6ff3f] transition"
+>
+  <option value="TEAM_MANAGER">Team Manager</option>
+  <option value="ORGANIZER">Tournament Organizer</option>
+  <option value="PLAYER">Player</option>
+  <option value="VIEWER">Viewer</option>
+</select>
+</div>
+
+{role === "ORGANIZER" && (
+  <div>
+    <label className="block text-sm font-medium mb-2">
+      Organizer invitation code
+    </label>
+
+    <input
+      type="password"
+      required
+      value={inviteCode}
+      onChange={(e) => setInviteCode(e.target.value)}
+      placeholder="Enter your invitation code"
+      className="w-full rounded-lg border border-[#252b33] bg-[#090b0e] px-4 py-3 outline-none focus:border-[#d6ff3f] transition"
+    />
+
+    <p className="mt-2 text-xs text-[#9298a1]">
+      Organizer registration requires an authorized invitation.
+    </p>
+  </div>
+)}
 
             <div>
               <label className="block text-sm font-medium mb-2">

@@ -6,18 +6,21 @@ export interface AuthResponse {
   userId: number;
   fullName: string;
   email: string;
-  role: "TEAM_MANAGER" | "ORGANIZER";
+  role: UserRole;
 }
 
 export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  role: UserRole;
+  inviteCode?: string;
 }
 
 export interface LoginRequest {
   email: string;
   password: string;
+  role: UserRole;
 }
 
 const AUTH_STORAGE_KEY = "dropzone_auth";
@@ -69,9 +72,7 @@ export function getAuthSession(): AuthResponse | null {
   }
 }
 
-export function getDashboardPath(
-  role: AuthResponse["role"]
-): string {
+export function getDashboardPath(role: UserRole): string {
   switch (role) {
     case "ORGANIZER":
       return "/organizer/dashboard";
@@ -79,11 +80,14 @@ export function getDashboardPath(
     case "TEAM_MANAGER":
       return "/manager/dashboard";
 
+    case "PLAYER":
+    case "VIEWER":
+      return "/";
+
     default:
       throw new Error("Invalid user role");
   }
 }
-
 export function getPostLoginPath(
   role: AuthResponse["role"],
   redirectTo: string | null
@@ -125,3 +129,8 @@ export function logout(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
+export type UserRole =
+  | "TEAM_MANAGER"
+  | "ORGANIZER"
+  | "PLAYER"
+  | "VIEWER";
