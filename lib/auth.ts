@@ -20,6 +20,7 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+  role: UserRole;
 }
 
 const AUTH_STORAGE_KEY = "dropzone_auth";
@@ -80,13 +81,13 @@ export function getDashboardPath(role: UserRole): string {
       return "/manager/dashboard";
 
     case "PLAYER":
-      return "/players";
-
     case "VIEWER":
       return "/";
+
+    default:
+      throw new Error("Invalid user role");
   }
 }
-
 export function getPostLoginPath(
   role: AuthResponse["role"],
   redirectTo: string | null
