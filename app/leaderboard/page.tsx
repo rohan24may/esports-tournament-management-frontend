@@ -46,9 +46,9 @@ function LeaderboardTable({
           </thead>
 
           <tbody>
-            {players.map((player, index) => (
-              <tr
-                key={player.playerId}
+{players.map((player, index) => (
+  <tr
+    key={`${player.playerId}-${player.teamName}-${index}`}
                 className="border-t border-[var(--border)] transition hover:bg-[var(--surface)]"
               >
                 <td className="px-5 py-5 font-bold text-[var(--accent)]">
